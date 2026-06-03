@@ -1,0 +1,342 @@
+/* Reset & base */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f0f4f0;
+  color: #1a1a1a;
+  min-height: 100dvh;
+}
+
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 0 40px;
+}
+
+/* Header */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 16px 12px;
+  position: sticky;
+  top: 0;
+  background: #f0f4f0;
+  z-index: 10;
+}
+
+.app-header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #16a34a;
+  letter-spacing: -0.4px;
+}
+
+/* Buttons */
+.btn-primary {
+  background: #22c55e;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-primary:hover { background: #16a34a; }
+
+.btn-ghost {
+  background: none;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 14px;
+  color: #555;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-ghost:hover { border-color: #22c55e; color: #16a34a; }
+
+/* Date nav */
+.date-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 16px;
+}
+
+.date-btn {
+  background: #fff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s;
+}
+.date-btn:hover:not(:disabled) { border-color: #22c55e; color: #16a34a; }
+.date-btn:disabled { opacity: 0.3; cursor: default; }
+
+.date-label {
+  font-size: 17px;
+  font-weight: 600;
+  min-width: 120px;
+  text-align: center;
+}
+
+/* Macro summary cards */
+.macro-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 10px 16px;
+}
+
+.macro-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.macro-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.macro-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.macro-values {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.macro-goal {
+  font-size: 12px;
+  font-weight: 400;
+  color: #9ca3af;
+}
+
+.macro-bar-bg {
+  height: 6px;
+  background: #f3f4f6;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.macro-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.3s ease;
+}
+
+/* Add food */
+.add-food-trigger {
+  display: block;
+  width: calc(100% - 32px);
+  margin: 4px 16px 4px;
+  padding: 13px;
+  background: #fff;
+  border: 2px dashed #86efac;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #16a34a;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s, background 0.15s;
+}
+.add-food-trigger:hover { border-color: #22c55e; background: #f0fdf4; }
+
+.add-food-form {
+  margin: 4px 16px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.add-food-form h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #16a34a;
+}
+
+.form-row { margin-bottom: 10px; }
+
+.input {
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 15px;
+  color: #1a1a1a;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+.input:focus { border-color: #22c55e; }
+
+.input-name { width: 100%; }
+
+.macro-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.macro-input-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.input-macro { font-size: 14px; }
+
+.unit {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: -2px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+/* Goal editor */
+.goal-editor {
+  margin: 0 16px 8px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.goal-editor h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #16a34a;
+}
+
+.goal-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.goal-input-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Food log */
+.empty-log {
+  text-align: center;
+  color: #9ca3af;
+  padding: 32px 16px;
+  font-size: 14px;
+}
+
+.food-log {
+  list-style: none;
+  padding: 8px 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.food-item {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.food-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.food-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  flex: 1;
+  margin-right: 8px;
+}
+
+.food-item-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.food-calories {
+  font-size: 14px;
+  font-weight: 700;
+  color: #22c55e;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: #d1d5db;
+  font-size: 14px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+.remove-btn:hover { color: #ef4444; }
+
+.food-macros {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.macro-pill {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+.macro-pill.protein { background: #eff6ff; color: #3b82f6; }
+.macro-pill.carbs   { background: #fff7ed; color: #f97316; }
+.macro-pill.fat     { background: #faf5ff; color: #a855f7; }
