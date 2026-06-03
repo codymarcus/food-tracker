@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 
-const EMPTY_NEW = { name: '', type: 'weight', refGrams: '', unitLabel: '', calories: '', protein: '', carbs: '', fat: '' }
+const EMPTY_NEW     = { name: '', type: 'weight', refGrams: '', unitLabel: '', calories: '', protein: '', carbs: '', fat: '' }
+const EMPTY_ONEOFF  = { name: '', calories: '', protein: '', carbs: '', fat: '' }
 
 function calcMacros(food, input) {
   const multiplier = food.type === 'weight'
@@ -22,6 +23,7 @@ export default function AddFoodForm({ library, onAdd, onSaveFood }) {
   const [amount, setAmount]       = useState('')
   const [defining, setDefining]   = useState(false)
   const [newFood, setNewFood]     = useState(EMPTY_NEW)
+  const [oneOff, setOneOff]       = useState(null)
   const wrapRef = useRef()
 
   useEffect(() => {
@@ -50,7 +52,31 @@ export default function AddFoodForm({ library, onAdd, onSaveFood }) {
     setShowDrop(false)
     setDefining(true)
     setSelected(null)
+    setOneOff(null)
     setNewFood({ ...EMPTY_NEW, name: query })
+  }
+
+  function startOneOff() {
+    setShowDrop(false)
+    setOneOff({ ...EMPTY_ONEOFF, name: query })
+    setDefining(false)
+    setSelected(null)
+  }
+
+  function setOff(field, val) {
+    setOneOff(prev => ({ ...prev, [field]: val }))
+  }
+
+  function submitOneOff() {
+    if (!oneOff.name.trim()) return
+    onAdd({
+      name: oneOff.name.trim(),
+      calories: Number(oneOff.calories) || 0,
+      protein:  Number(oneOff.protein)  || 0,
+      carbs:    Number(oneOff.carbs)    || 0,
+      fat:      Number(oneOff.fat)      || 0,
+    })
+    reset()
   }
 
   function setNew(field, val) {
@@ -94,6 +120,7 @@ export default function AddFoodForm({ library, onAdd, onSaveFood }) {
     setAmount('')
     setDefining(false)
     setNewFood(EMPTY_NEW)
+    setOneOff(null)
     setShowDrop(false)
   }
 
@@ -104,7 +131,7 @@ export default function AddFoodForm({ library, onAdd, onSaveFood }) {
       <h3>Add Food</h3>
 
       {/* Search row */}
-      {!defining && (
+      {!defining && !oneOff && (
         <div className="search-wrap">
           <input
             className="input input-name"
@@ -124,8 +151,11 @@ export default function AddFoodForm({ library, onAdd, onSaveFood }) {
                   </span>
                 </li>
               ))}
-              <li className="dd-new" onMouseDown={startDefining}>
-                + Add "{query || 'new food'}" to My Foods
+              <li className="dd-new" onMouseDown={startOneOff}>
+                Log "{query || 'food'}" once (don't save)
+              </li>
+              <li className="dd-save" onMouseDown={startDefining}>
+                + Save "{query || 'food'}" to My Foods
               </li>
             </ul>
           )}
@@ -233,7 +263,39 @@ export default function AddFoodForm({ library, onAdd, onSaveFood }) {
         </div>
       )}
 
-      {!selected && !defining && (
+      {/* One-off form */}
+      {oneOff && (
+        <div className="define-food">
+          <div className="form-row">
+            <label className="field-label">Food name</label>
+            <input className="input input-name" value={oneOff.name} autoFocus
+              onChange={e => setOff('name', e.target.value)} />
+          </div>
+          <div className="macro-inputs">
+            {[
+              { key: 'calories', label: 'Calories', unit: 'kcal' },
+              { key: 'protein',  label: 'Protein',  unit: 'g' },
+              { key: 'carbs',    label: 'Carbs',    unit: 'g' },
+              { key: 'fat',      label: 'Fat',      unit: 'g' },
+            ].map(({ key, label, unit }) => (
+              <label key={key} className="macro-input-label">
+                <span>{label}</span>
+                <input className="input input-macro" type="number" min="0" step="0.1"
+                  placeholder="0" value={oneOff[key]} onChange={e => setOff(key, e.target.value)} />
+                <span className="unit">{unit}</span>
+              </label>
+            ))}
+          </div>
+          <div className="form-actions">
+            <button className="btn-primary" onClick={submitOneOff} disabled={!oneOff.name.trim()}>
+              Add
+            </button>
+            <button className="btn-ghost" onClick={() => setOneOff(null)}>Back</button>
+          </div>
+        </div>
+      )}
+
+      {!selected && !defining && !oneOff && (
         <div className="form-actions" style={{ marginTop: 8 }}>
           <button className="btn-ghost" onClick={reset}>Cancel</button>
         </div>

@@ -385,7 +385,8 @@ body {
 .dd-name { font-weight: 500; color: #111827; }
 .dd-meta { font-size: 12px; color: #9ca3af; }
 
-.dd-new { color: #16a34a; font-weight: 600; font-size: 14px; }
+.dd-new  { color: #6b7280; font-weight: 500; font-size: 14px; }
+.dd-save { color: #16a34a; font-weight: 600; font-size: 14px; }
 
 /* Define new food */
 .define-food { }
