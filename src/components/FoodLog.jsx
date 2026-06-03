@@ -8,16 +8,14 @@ export default function FoodLog({ entries, onRemove }) {
       {entries.map(entry => (
         <li key={entry.id} className="food-item">
           <div className="food-item-top">
-            <span className="food-name">{entry.name}</span>
+            <div>
+              <span className="food-name">{entry.name}</span>
+              {entry.serving && <span className="food-serving">{entry.serving}</span>}
+            </div>
             <div className="food-item-right">
               <span className="food-calories">{entry.calories} kcal</span>
-              <button
-                className="remove-btn"
-                onClick={() => onRemove(entry.id)}
-                aria-label={`Remove ${entry.name}`}
-              >
-                ✕
-              </button>
+              <button className="remove-btn" onClick={() => onRemove(entry.id)}
+                aria-label={`Remove ${entry.name}`}>✕</button>
             </div>
           </div>
           <div className="food-macros">
