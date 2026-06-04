@@ -5,7 +5,7 @@ export default function FoodLog({ entries, onRemove }) {
 
   return (
     <ul className="food-log">
-      {entries.map(entry => (
+      {[...entries].reverse().map(entry => (
         <li key={entry.id} className="food-item">
           <div className="food-item-top">
             <div>
