@@ -1,11 +1,15 @@
+function localDateStr(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
 function shiftDate(dateStr, days) {
   const d = new Date(dateStr + 'T00:00:00')
   d.setDate(d.getDate() + days)
-  return d.toISOString().slice(0, 10)
+  return localDateStr(d)
 }
 
 function formatDate(dateStr) {
-  const today = new Date().toISOString().slice(0, 10)
+  const today = localDateStr()
   const yesterday = shiftDate(today, -1)
   if (dateStr === today) return 'Today'
   if (dateStr === yesterday) return 'Yesterday'
@@ -15,7 +19,7 @@ function formatDate(dateStr) {
 }
 
 export default function DateNav({ date, onChange }) {
-  const today = new Date().toISOString().slice(0, 10)
+  const today = localDateStr()
   const isToday = date === today
 
   return (
