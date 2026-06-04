@@ -192,6 +192,8 @@ body {
   z-index: 51;
   max-height: 88vh;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .sheet-handle {
@@ -227,9 +229,9 @@ body {
   margin-top: 8px;
   border: 1.5px solid #e5e7eb;
   border-radius: 12px;
-  overflow: hidden;
-  max-height: 50vh;
   overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 .sheet-results li {
   display: flex;
@@ -242,6 +244,8 @@ body {
 }
 .sheet-results li:last-child { border-bottom: none; }
 .sheet-results li:active { background: #f0fdf4; }
+
+.search-bottom { margin-top: 10px; flex-shrink: 0; }
 
 .btn-full {
   width: 100%;

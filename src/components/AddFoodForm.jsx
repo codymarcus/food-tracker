@@ -123,13 +123,6 @@ export default function AddFoodForm({ library, onAdd, onSaveFood }) {
         {mode === 'search' && (
           <>
             <h3 className="sheet-title">Add Food</h3>
-            <input
-              ref={searchRef}
-              className="input input-name"
-              placeholder="Search your foods…"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-            />
             <ul className="sheet-results">
               {filtered.map(f => (
                 <li key={f.id} onClick={() => selectFood(f)}>
@@ -146,6 +139,13 @@ export default function AddFoodForm({ library, onAdd, onSaveFood }) {
                 + Save "{query || 'food'}" to My Foods
               </li>
             </ul>
+            <input
+              ref={searchRef}
+              className="input input-name search-bottom"
+              placeholder="Search your foods…"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+            />
           </>
         )}
 
