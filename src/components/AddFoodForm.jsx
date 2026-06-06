@@ -2,32 +2,31 @@ import { useState, useRef, useEffect } from 'react'
 
 const EMPTY_NEW    = { name: '', type: 'weight', refGrams: '', unitLabel: '', calories: '', protein: '', carbs: '', fat: '' }
 const EMPTY_ONEOFF = { name: '', calories: '', protein: '', carbs: '', fat: '' }
+const EMPTY_FIELDS = { amount: '', calories: '', protein: '', carbs: '', fat: '' }
 
 const MACRO_FIELDS = [
-  { key: 'calories', label: 'Calories', unit: 'kcal' },
+  { key: 'calories', label: 'Calories', unit: 'cal' },
   { key: 'protein',  label: 'Protein',  unit: 'g' },
   { key: 'carbs',    label: 'Carbs',    unit: 'g' },
   { key: 'fat',      label: 'Fat',      unit: 'g' },
 ]
 
-function calcMacros(food, input) {
-  const multiplier = food.type === 'weight'
-    ? (Number(input) || 0) / (food.refGrams || 1)
-    : (Number(input) || 0)
-  return {
-    calories: Math.round(food.calories * multiplier),
-    protein:  Math.round(food.protein  * multiplier * 10) / 10,
-    carbs:    Math.round(food.carbs    * multiplier * 10) / 10,
-    fat:      Math.round(food.fat      * multiplier * 10) / 10,
-  }
+function multiplierFor(food, amount) {
+  return food.type === 'weight'
+    ? (Number(amount) || 0) / (food.refGrams || 1)
+    : (Number(amount) || 0)
+}
+
+function fmtMacro(key, v) {
+  return key === 'calories' ? String(Math.round(v)) : String(Math.round(v * 10) / 10)
 }
 
 export default function AddFoodForm({ library, onAdd, onSaveFood }) {
   const [open, setOpen]         = useState(false)
-  const [mode, setMode]         = useState('search') // search | amount | oneoff | define
+  const [mode, setMode]         = useState('search')
   const [query, setQuery]       = useState('')
   const [selected, setSelected] = useState(null)
-  const [amount, setAmount]     = useState('')
+  const [fields, setFields]     = useState(EMPTY_FIELDS)
   const [newFood, setNewFood]   = useState(EMPTY_NEW)
   const [oneOff, setOneOff]     = useState(EMPTY_ONEOFF)
   const searchRef = useRef()
@@ -41,14 +40,14 @@ export default function AddFoodForm({ library, onAdd, onSaveFood }) {
     setMode('search')
     setQuery('')
     setSelected(null)
-    setAmount('')
+    setFields(EMPTY_FIELDS)
     setNewFood(EMPTY_NEW)
     setOneOff(EMPTY_ONEOFF)
   }
 
   function selectFood(food) {
     setSelected(food)
-    setAmount('')
+    setFields(EMPTY_FIELDS)
     setMode('amount')
   }
 
@@ -65,11 +64,49 @@ export default function AddFoodForm({ library, onAdd, onSaveFood }) {
   function setNew(field, val) { setNewFood(prev => ({ ...prev, [field]: val })) }
   function setOff(field, val) { setOneOff(prev => ({ ...prev, [field]: val })) }
 
+  // Bidirectional field handler: editing any field recalculates all others
+  function handleField(food, key, val) {
+    if (key === 'amount') {
+      const a = Number(val) || 0
+      const m = multiplierFor(food, val)
+      setFields({
+        amount: val,
+        calories: a > 0 ? fmtMacro('calories', food.calories * m) : '',
+        protein:  a > 0 ? fmtMacro('protein',  food.protein  * m) : '',
+        carbs:    a > 0 ? fmtMacro('carbs',    food.carbs    * m) : '',
+        fat:      a > 0 ? fmtMacro('fat',      food.fat      * m) : '',
+      })
+    } else {
+      // Solve for amount from this macro, then derive the rest
+      const rate = food.type === 'weight'
+        ? food[key] / (food.refGrams || 1)
+        : food[key]
+      const target = Number(val) || 0
+      const a = rate > 0 ? target / rate : 0
+      const m = a > 0 ? multiplierFor(food, a) : 0
+      const next = { ...EMPTY_FIELDS, [key]: val }
+      if (a > 0) {
+        next.amount = String(food.type === 'weight' ? Math.round(a * 10) / 10 : Math.round(a * 100) / 100)
+        for (const mk of ['calories', 'protein', 'carbs', 'fat']) {
+          if (mk !== key) next[mk] = fmtMacro(mk, food[mk] * m)
+        }
+      }
+      setFields(next)
+    }
+  }
+
   function submitAmount() {
-    if (!selected || !amount) return
-    const macros = calcMacros(selected, amount)
-    const label = selected.type === 'weight' ? `${amount}g` : `${amount} ${selected.unitLabel}`
-    onAdd({ name: selected.name, serving: label, ...macros })
+    if (!selected || !fields.amount) return
+    const amtStr = fields.amount
+    const label = selected.type === 'weight' ? `${amtStr}g` : `${amtStr} ${selected.unitLabel}`
+    onAdd({
+      name: selected.name,
+      serving: label,
+      calories: Number(fields.calories) || 0,
+      protein:  Number(fields.protein)  || 0,
+      carbs:    Number(fields.carbs)    || 0,
+      fat:      Number(fields.fat)      || 0,
+    })
     reset()
   }
 
@@ -99,15 +136,13 @@ export default function AddFoodForm({ library, onAdd, onSaveFood }) {
     }
     onSaveFood(food)
     setSelected(food)
-    setAmount('')
+    setFields(EMPTY_FIELDS)
     setMode('amount')
   }
 
   const filtered = library.filter(f =>
     !query || f.name.toLowerCase().includes(query.toLowerCase())
   )
-
-  const preview = selected && amount && Number(amount) > 0 ? calcMacros(selected, amount) : null
 
   if (!open) {
     return <button className="fab" onClick={() => setOpen(true)}>+</button>
@@ -149,7 +184,7 @@ export default function AddFoodForm({ library, onAdd, onSaveFood }) {
           </>
         )}
 
-        {/* AMOUNT */}
+        {/* AMOUNT — bidirectional */}
         {mode === 'amount' && selected && (
           <>
             <button className="back-btn" onClick={() => setMode('search')}>← Back</button>
@@ -161,30 +196,43 @@ export default function AddFoodForm({ library, onAdd, onSaveFood }) {
                   : `macros per ${selected.unitLabel}`}
               </span>
             </div>
-            <div className="amount-center">
+
+            {/* Amount row */}
+            <div className="bidir-amount-row">
+              <label className="field-label">
+                {selected.type === 'weight' ? 'Grams' : selected.unitLabel}
+              </label>
               <input
                 className="amount-big"
                 type="text"
                 inputMode="decimal"
                 placeholder="0"
-                value={amount}
+                value={fields.amount}
                 autoFocus
-                onChange={e => setAmount(e.target.value)}
+                onChange={e => handleField(selected, 'amount', e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && submitAmount()}
               />
-              <span className="amount-unit-label">
-                {selected.type === 'weight' ? 'grams' : selected.unitLabel}
-              </span>
             </div>
-            {preview && (
-              <div className="macro-preview">
-                <span className="prev-item cal">{preview.calories} kcal</span>
-                <span className="prev-item pro">P {preview.protein}g</span>
-                <span className="prev-item carb">C {preview.carbs}g</span>
-                <span className="prev-item fat">F {preview.fat}g</span>
-              </div>
-            )}
-            <button className="btn-primary btn-full" onClick={submitAmount} disabled={!amount}>
+
+            {/* Macro fields — all editable, all linked */}
+            <div className="macro-inputs bidir-macros">
+              {MACRO_FIELDS.map(({ key, label, unit }) => (
+                <label key={key} className="macro-input-label">
+                  <span>{label}</span>
+                  <input
+                    className="input input-macro"
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="0"
+                    value={fields[key]}
+                    onChange={e => handleField(selected, key, e.target.value)}
+                  />
+                  <span className="unit">{unit}</span>
+                </label>
+              ))}
+            </div>
+
+            <button className="btn-primary btn-full" onClick={submitAmount} disabled={!fields.amount}>
               Add to Log
             </button>
           </>

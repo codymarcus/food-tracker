@@ -660,6 +660,22 @@ body {
   margin-top: 8px;
 }
 
+/* Bidirectional amount+macro layout */
+.bidir-amount-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.bidir-amount-row .field-label { white-space: nowrap; margin-bottom: 0; }
+.bidir-amount-row .amount-big {
+  font-size: 32px;
+  width: auto;
+  flex: 1;
+  border-bottom-width: 2px;
+}
+.bidir-macros { margin-bottom: 4px; }
+
 .macro-preview {
   display: flex;
   gap: 8px;
