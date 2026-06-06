@@ -112,26 +112,32 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 8px;
+  margin-bottom: 2px;
 }
 
 .macro-label {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.macro-values {
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.macro-goal {
-  font-size: 12px;
-  font-weight: 400;
   color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.macro-remain {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.macro-remain-tag {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.macro-consumed {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-bottom: 6px;
 }
 
 .macro-bar-bg {

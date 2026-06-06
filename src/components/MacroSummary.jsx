@@ -1,9 +1,9 @@
 export default function MacroSummary({ totals, goals }) {
   const macros = [
-    { key: 'calories', label: 'Calories', unit: 'kcal', color: '#22c55e' },
-    { key: 'protein',  label: 'Protein',  unit: 'g',    color: '#3b82f6' },
-    { key: 'carbs',    label: 'Carbs',    unit: 'g',    color: '#f97316' },
-    { key: 'fat',      label: 'Fat',      unit: 'g',    color: '#a855f7' },
+    { key: 'calories', label: 'Calories', unit: 'cal', color: '#22c55e' },
+    { key: 'protein',  label: 'Protein',  unit: 'g',   color: '#3b82f6' },
+    { key: 'carbs',    label: 'Carbs',    unit: 'g',   color: '#f97316' },
+    { key: 'fat',      label: 'Fat',      unit: 'g',   color: '#a855f7' },
   ]
 
   return (
@@ -13,29 +13,23 @@ export default function MacroSummary({ totals, goals }) {
         const goal = goals[key]
         const pct = Math.min(100, goal > 0 ? (current / goal) * 100 : 0)
         const over = current > goal
+        const diff = Math.round(Math.abs(goal - current))
 
         return (
           <div key={key} className="macro-card">
             <div className="macro-top">
               <span className="macro-label">{label}</span>
-              <span className="macro-values" style={{ color: over ? '#ef4444' : color }}>
-                {current}
-                <span className="macro-goal"> / {goal} {unit}</span>
+              <span className="macro-remain" style={{ color: over ? '#ef4444' : color }}>
+                {over ? `+${diff}` : diff}
+                <span className="macro-remain-tag">{over ? ' over' : ' left'}</span>
               </span>
             </div>
+            <div className="macro-consumed">{current} / {goal} {unit}</div>
             <div className="macro-bar-bg">
               <div
                 className="macro-bar-fill"
-                style={{
-                  width: `${pct}%`,
-                  background: over ? '#ef4444' : color,
-                }}
+                style={{ width: `${pct}%`, background: over ? '#ef4444' : color }}
               />
-            </div>
-            <div className="macro-remaining" style={{ color: over ? '#ef4444' : '#6b7280' }}>
-              {over
-                ? `${Math.round(current - goal)} ${unit} over`
-                : `${Math.round(goal - current)} ${unit} left`}
             </div>
           </div>
         )
