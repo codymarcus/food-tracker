@@ -32,6 +32,11 @@ export default function MacroSummary({ totals, goals }) {
                 }}
               />
             </div>
+            <div className="macro-remaining" style={{ color: over ? '#ef4444' : '#6b7280' }}>
+              {over
+                ? `${Math.round(current - goal)} ${unit} over`
+                : `${Math.round(goal - current)} ${unit} left`}
+            </div>
           </div>
         )
       })}
