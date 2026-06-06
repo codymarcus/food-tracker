@@ -18,7 +18,7 @@ export default function MacroSummary({ totals, goals }) {
         return (
           <div key={key} className="macro-card">
             <div className="macro-top">
-              <span className="macro-label">{label}</span>
+              <span className="macro-label" style={{ color }}>{label}</span>
               <span className="macro-remain" style={{ color: over ? '#ef4444' : color }}>
                 {over ? `+${diff}` : diff}
                 <span className="macro-remain-tag">{over ? ' over' : ' left'}</span>
