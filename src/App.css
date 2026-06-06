@@ -669,11 +669,20 @@ body {
 }
 .bidir-amount-row .field-label { white-space: nowrap; margin-bottom: 0; }
 .bidir-amount-row .amount-big {
-  font-size: 32px;
-  width: auto;
+  font-size: 24px;
+  font-weight: 700;
+  width: 0;
   flex: 1;
-  border-bottom-width: 2px;
+  min-width: 0;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #fff;
+  color: #111827;
+  outline: none;
+  transition: border-color 0.15s;
 }
+.bidir-amount-row .amount-big:focus { border-color: #22c55e; }
 .bidir-macros { margin-bottom: 4px; }
 
 .macro-preview {
