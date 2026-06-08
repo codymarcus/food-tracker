@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { localDateStr } from './utils/dates.js'
+import { migrateGoals, goalsAt } from './utils/goals.js'
 import MacroSummary from './components/MacroSummary'
 import FoodLog from './components/FoodLog'
 import AddFoodForm from './components/AddFoodForm'
@@ -21,20 +22,28 @@ function load(key, fallback) {
   catch { return fallback }
 }
 
-const DEFAULT_GOALS = { calories: 2000, protein: 150, carbs: 200, fat: 65 }
-
 export default function App() {
-  const [date, setDate]       = useState(localDateStr)
-  const [log, setLog]         = useState(() => load(LOG_KEY, {}))
-  const [goals, setGoals]     = useState(() => load(GOALS_KEY, DEFAULT_GOALS))
-  const [library, setLibrary] = useState(() => load(LIBRARY_KEY, []))
-  const [health, setHealth]   = useState(() => load(HEALTH_KEY, {}))
-  const [panel, setPanel]     = useState(null)
+  const [date, setDate]             = useState(localDateStr)
+  const [log, setLog]               = useState(() => load(LOG_KEY, {}))
+  const [goalHistory, setGoalHistory] = useState(() => migrateGoals(load(GOALS_KEY, null)))
+  const [library, setLibrary]       = useState(() => load(LIBRARY_KEY, []))
+  const [health, setHealth]         = useState(() => load(HEALTH_KEY, {}))
+  const [panel, setPanel]           = useState(null)
 
-  useEffect(() => { localStorage.setItem(LOG_KEY,     JSON.stringify(log))     }, [log])
-  useEffect(() => { localStorage.setItem(GOALS_KEY,   JSON.stringify(goals))   }, [goals])
-  useEffect(() => { localStorage.setItem(LIBRARY_KEY, JSON.stringify(library)) }, [library])
-  useEffect(() => { localStorage.setItem(HEALTH_KEY,  JSON.stringify(health))  }, [health])
+  useEffect(() => { localStorage.setItem(LOG_KEY,     JSON.stringify(log))         }, [log])
+  useEffect(() => { localStorage.setItem(GOALS_KEY,   JSON.stringify(goalHistory)) }, [goalHistory])
+  useEffect(() => { localStorage.setItem(LIBRARY_KEY, JSON.stringify(library))     }, [library])
+  useEffect(() => { localStorage.setItem(HEALTH_KEY,  JSON.stringify(health))      }, [health])
+
+  const goals = goalsAt(goalHistory, date)
+
+  function updateGoals(newGoals) {
+    const today = localDateStr()
+    setGoalHistory(prev => {
+      const without = prev.filter(g => g.date !== today)
+      return [...without, { date: today, ...newGoals }].sort((a, b) => a.date.localeCompare(b.date))
+    })
+  }
 
   const entries = log[date] || []
 
@@ -87,10 +96,10 @@ export default function App() {
         </div>
       </header>
 
-      {panel === 'goals'   && <GoalEditor goals={goals} onChange={setGoals} onClose={() => setPanel(null)} />}
+      {panel === 'goals'   && <GoalEditor goals={goals} onChange={updateGoals} onClose={() => setPanel(null)} />}
       {panel === 'library' && <FoodLibrary library={library} onDelete={deleteFood} onClose={() => setPanel(null)} />}
-      {panel === 'trends'  && <TrendsPanel log={log} health={health} onClose={() => setPanel(null)} />}
-      {panel === 'export'  && <ExportPanel log={log} health={health} goals={goals} library={library} onClose={() => setPanel(null)} />}
+      {panel === 'trends'  && <TrendsPanel log={log} health={health} goalHistory={goalHistory} onClose={() => setPanel(null)} />}
+      {panel === 'export'  && <ExportPanel log={log} health={health} goals={goalHistory} library={library} onClose={() => setPanel(null)} />}
 
       <DateNav date={date} onChange={setDate} />
       <MacroSummary totals={totals} goals={goals} />

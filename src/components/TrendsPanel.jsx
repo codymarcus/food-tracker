@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { localDateStr, shiftDate } from '../utils/dates.js'
+import { goalsAt } from '../utils/goals.js'
 import LineChart from './LineChart.jsx'
+
+const STEPS_GOAL = 10000
 
 function buildDateRange(days) {
   const today = localDateStr()
@@ -18,13 +21,30 @@ function dailyCalories(log, date) {
   return total > 0 ? Math.round(total) : null
 }
 
-export default function TrendsPanel({ log, health, onClose }) {
+function average(values) {
+  const nonNull = values.filter(v => v !== null && v !== undefined)
+  if (!nonNull.length) return null
+  return nonNull.reduce((a, b) => a + b, 0) / nonNull.length
+}
+
+export default function TrendsPanel({ log, health, goalHistory, onClose }) {
   const [range, setRange] = useState(7)
   const dates = buildDateRange(range)
 
   const caloriesData = dates.map(date => ({ date, value: dailyCalories(log, date) }))
   const weightData   = dates.map(date => ({ date, value: health[date]?.weight ?? null }))
   const stepsData    = dates.map(date => ({ date, value: health[date]?.steps  ?? null }))
+
+  const calorieGoalData = dates.map(date => ({ date, value: goalsAt(goalHistory, date).calories }))
+  const stepsGoalData   = dates.map(date => ({ date, value: STEPS_GOAL }))
+
+  const avgCalories = average(caloriesData.map(d => d.value))
+  const avgSteps    = average(stepsData.map(d => d.value))
+
+  const weighIns = weightData.filter(d => d.value !== null)
+  const weightDiff = weighIns.length >= 2
+    ? Math.round((weighIns[weighIns.length - 1].value - weighIns[0].value) * 10) / 10
+    : null
 
   return (
     <div className="trends-panel">
@@ -36,9 +56,37 @@ export default function TrendsPanel({ log, health, onClose }) {
         <button className={`toggle-btn ${range === 7  ? 'active' : ''}`} onClick={() => setRange(7)}>7 Days</button>
         <button className={`toggle-btn ${range === 30 ? 'active' : ''}`} onClick={() => setRange(30)}>30 Days</button>
       </div>
-      <LineChart title="Calories" data={caloriesData} unit="kcal"  color="#22c55e" />
-      <LineChart title="Weight"   data={weightData}   unit="lbs"   color="#3b82f6" />
-      <LineChart title="Steps"    data={stepsData}    unit="steps" color="#f97316" />
+
+      <div className="trend-stats">
+        <div className="trend-stat">
+          <span className="trend-stat-label">Avg Calories</span>
+          <span className="trend-stat-value">
+            {avgCalories != null ? Math.round(avgCalories).toLocaleString() : '—'}
+          </span>
+        </div>
+        <div className="trend-stat">
+          <span className="trend-stat-label">Avg Steps</span>
+          <span className="trend-stat-value">
+            {avgSteps != null ? Math.round(avgSteps).toLocaleString() : '—'}
+          </span>
+        </div>
+        <div className="trend-stat">
+          <span className="trend-stat-label">Weight Change</span>
+          <span className="trend-stat-value">
+            {weightDiff != null ? `${weightDiff > 0 ? '+' : ''}${weightDiff} lbs` : '—'}
+          </span>
+        </div>
+      </div>
+
+      <LineChart
+        title="Calories" data={caloriesData} unit="cal" color="#22c55e"
+        refLine={{ data: calorieGoalData, color: '#15803d', label: 'Goal' }}
+      />
+      <LineChart title="Weight" data={weightData} unit="lbs" color="#3b82f6" />
+      <LineChart
+        title="Steps" data={stepsData} unit="steps" color="#f97316"
+        refLine={{ data: stepsGoalData, color: '#c2410c', label: '10,000' }}
+      />
     </div>
   )
 }

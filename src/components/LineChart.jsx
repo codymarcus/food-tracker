@@ -24,21 +24,35 @@ function fmtLabel(v, unit) {
   return Math.round(v).toLocaleString()
 }
 
-export default function LineChart({ title, data, unit, color }) {
+export default function LineChart({ title, data, unit, color, refLine }) {
   const nonNull = data.filter(d => d.value !== null)
+  const refNonNull = refLine ? refLine.data.filter(d => d.value !== null) : []
   const n = data.length
 
   const xOf = (i) => PAD.l + (n <= 1 ? CW / 2 : (i / (n - 1)) * CW)
 
+  const allValues = [...nonNull.map(d => d.value), ...refNonNull.map(d => d.value)]
   const hasData = nonNull.length > 0
-  const min = hasData ? Math.min(...nonNull.map(d => d.value)) : 0
-  const max = hasData ? Math.max(...nonNull.map(d => d.value)) : 1
+  const min = allValues.length ? Math.min(...allValues) : 0
+  const max = allValues.length ? Math.max(...allValues) : 1
   const range = max - min || 1
   const yOf = (v) => PAD.t + (1 - (v - min) / range) * CH
 
   return (
     <div className="line-chart">
-      <p className="chart-title">{title}</p>
+      <div className="chart-title-row">
+        <p className="chart-title">{title}</p>
+        {refLine && (
+          <div className="chart-legend">
+            <span className="legend-item">
+              <i className="legend-swatch" style={{ background: color }} />{title}
+            </span>
+            <span className="legend-item">
+              <i className="legend-swatch dashed" style={{ borderColor: refLine.color }} />{refLine.label}
+            </span>
+          </div>
+        )}
+      </div>
       <svg className="chart-svg" viewBox={`0 0 ${W} ${H}`}>
         {/* Grid lines */}
         {[0, 0.5, 1].map(t => {
@@ -48,7 +62,7 @@ export default function LineChart({ title, data, unit, color }) {
             <g key={t}>
               <line x1={PAD.l} x2={PAD.l + CW} y1={y} y2={y} stroke="#f3f4f6" strokeWidth="1" />
               <text x={PAD.l - 4} y={y + 3} textAnchor="end" fontSize="9" fill="#9ca3af">
-                {hasData ? fmtLabel(v, unit) : ''}
+                {(hasData || refNonNull.length) ? fmtLabel(v, unit) : ''}
               </text>
             </g>
           )
@@ -71,6 +85,20 @@ export default function LineChart({ title, data, unit, color }) {
             No data yet
           </text>
         )}
+
+        {/* Reference line (e.g. goal) */}
+        {refLine && segments(refLine.data).map((seg, si) => (
+          <polyline
+            key={`ref-${si}`}
+            fill="none"
+            stroke={refLine.color}
+            strokeWidth="1.5"
+            strokeDasharray="5 4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            points={seg.map(d => `${xOf(d.i)},${yOf(d.value)}`).join(' ')}
+          />
+        ))}
 
         {/* Polyline segments */}
         {segments(data).map((seg, si) => (
