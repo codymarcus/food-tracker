@@ -38,8 +38,9 @@ export default function TrendsPanel({ log, health, goalHistory, onClose }) {
   const calorieGoalData = dates.map(date => ({ date, value: goalsAt(goalHistory, date).calories }))
   const stepsGoalData   = dates.map(date => ({ date, value: STEPS_GOAL }))
 
-  const avgCalories = average(caloriesData.map(d => d.value))
-  const avgSteps    = average(stepsData.map(d => d.value))
+  // Exclude today — its totals are still in progress and would skew the average down
+  const avgCalories = average(caloriesData.slice(0, -1).map(d => d.value))
+  const avgSteps    = average(stepsData.slice(0, -1).map(d => d.value))
 
   const weighIns = weightData.filter(d => d.value !== null)
   const weightDiff = weighIns.length >= 2
