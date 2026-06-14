@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { localDateStr } from './utils/dates.js'
 import { migrateGoals, goalsAt } from './utils/goals.js'
+import { migrateHealth } from './utils/workouts.js'
 import MacroSummary from './components/MacroSummary'
 import FoodLog from './components/FoodLog'
 import AddFoodForm from './components/AddFoodForm'
@@ -27,7 +28,7 @@ export default function App() {
   const [log, setLog]               = useState(() => load(LOG_KEY, {}))
   const [goalHistory, setGoalHistory] = useState(() => migrateGoals(load(GOALS_KEY, null)))
   const [library, setLibrary]       = useState(() => load(LIBRARY_KEY, []))
-  const [health, setHealth]         = useState(() => load(HEALTH_KEY, {}))
+  const [health, setHealth]         = useState(() => migrateHealth(load(HEALTH_KEY, {})))
   const [panel, setPanel]           = useState(null)
 
   useEffect(() => { localStorage.setItem(LOG_KEY,     JSON.stringify(log))         }, [log])
