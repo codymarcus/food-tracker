@@ -1,3 +1,7 @@
+import { WORKOUT_TYPES } from './workouts.js'
+
+const WORKOUT_LABELS = Object.fromEntries(WORKOUT_TYPES.map(w => [w.key, w.label]))
+
 function triggerDownload(content, filename, mime) {
   const blob = new Blob([content], { type: mime })
   const url  = URL.createObjectURL(blob)
@@ -11,7 +15,7 @@ function triggerDownload(content, filename, mime) {
 export function exportCSV(log, health) {
   const allDates = [...new Set([...Object.keys(log), ...Object.keys(health)])].sort()
 
-  const header = 'date,calories,protein,carbs,fat,weight_lbs,steps,workout'
+  const header = 'date,calories,protein,carbs,fat,weight_lbs,steps,workout,workout_type'
   const rows = allDates.map(date => {
     const entries = log[date] || []
     const t = entries.reduce(
@@ -25,6 +29,7 @@ export function exportCSV(log, health) {
     )
     const h = health[date] || {}
     const workout = h.workout != null ? (h.workout.completed ? 'yes' : 'no') : ''
+    const workoutType = h.workout?.completed ? (WORKOUT_LABELS[h.workout.type] ?? '') : ''
     return [
       date,
       entries.length ? Math.round(t.calories)             : '',
@@ -34,6 +39,7 @@ export function exportCSV(log, health) {
       h.weight ?? '',
       h.steps  ?? '',
       workout,
+      workoutType,
     ].join(',')
   })
 

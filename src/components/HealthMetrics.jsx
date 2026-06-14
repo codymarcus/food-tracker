@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { WORKOUT_TYPES } from '../utils/workouts.js'
 
 export default function HealthMetrics({ metrics, onChange }) {
   const [weight, setWeight] = useState(metrics.weight ?? '')
@@ -20,13 +21,13 @@ export default function HealthMetrics({ metrics, onChange }) {
     if (!isNaN(val)) onChange({ steps: val })
   }
 
-  const workoutCompleted = metrics.workout?.completed ?? null
+  const workoutType = metrics.workout?.completed ? metrics.workout.type ?? null : null
 
-  function toggleWorkout() {
-    if (workoutCompleted === null || workoutCompleted === false) {
-      onChange({ workout: { completed: true } })
+  function selectWorkout(type) {
+    if (workoutType === type) {
+      onChange({ workout: { completed: false, type: null } })
     } else {
-      onChange({ workout: { completed: false } })
+      onChange({ workout: { completed: true, type } })
     }
   }
 
@@ -63,15 +64,20 @@ export default function HealthMetrics({ metrics, onChange }) {
             />
           </div>
         </div>
+      </div>
 
-        <div className="health-field health-field-workout">
-          <span className="health-field-label">Workout</span>
-          <button
-            className={`workout-toggle ${workoutCompleted === true ? 'active' : ''}`}
-            onClick={toggleWorkout}
-          >
-            {workoutCompleted === true ? '✓ Done' : 'Log'}
-          </button>
+      <div className="health-field health-field-workout">
+        <span className="health-field-label">Workout</span>
+        <div className="workout-options">
+          {WORKOUT_TYPES.map(({ key, label }) => (
+            <button
+              key={key}
+              className={`workout-toggle ${workoutType === key ? 'active' : ''}`}
+              onClick={() => selectWorkout(key)}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
     </div>
