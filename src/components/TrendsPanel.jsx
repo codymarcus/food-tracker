@@ -82,7 +82,6 @@ export default function TrendsPanel({ log, health, goalHistory, onClose }) {
         title="Steps" data={stepsData} unit="steps" color="#f97316"
         refLine={{ data: stepsGoalData, color: '#c2410c', label: 'Goal' }}
         markers={workoutMarkers} markerPlacement="value" compact
-        partialFromIndex={lastIndex}
       />
       {hasWorkoutMarkers && (
         <p className="chart-marker-legend">
