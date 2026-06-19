@@ -329,6 +329,8 @@ body {
   color: #16a34a;
 }
 
+.goal-inputs + h3 { margin-top: 16px; }
+
 .goal-inputs {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -548,6 +550,7 @@ body {
 /* Line chart */
 .line-chart { margin-bottom: 20px; }
 .line-chart:last-child { margin-bottom: 0; }
+.line-chart-compact { margin-bottom: 12px; }
 .chart-marker-legend {
   font-size: 10px;
   color: #9ca3af;

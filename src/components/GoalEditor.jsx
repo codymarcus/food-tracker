@@ -7,6 +7,10 @@ export default function GoalEditor({ goals, onChange, onClose }) {
     setDraft(prev => ({ ...prev, [field]: Number(val) || 0 }))
   }
 
+  function handleNullable(field, val) {
+    setDraft(prev => ({ ...prev, [field]: val === '' ? null : Number(val) }))
+  }
+
   function save() {
     onChange(draft)
     onClose()
@@ -34,6 +38,41 @@ export default function GoalEditor({ goals, onChange, onClose }) {
           </label>
         ))}
       </div>
+
+      <h3>Activity &amp; Weight</h3>
+      <div className="goal-inputs">
+        <label className="goal-input-label">
+          <span>Steps Goal</span>
+          <input
+            className="input input-macro"
+            type="number"
+            min="0"
+            value={draft.stepsGoal}
+            onChange={e => handle('stepsGoal', e.target.value)}
+          />
+        </label>
+        <label className="goal-input-label">
+          <span>Target Low (lbs)</span>
+          <input
+            className="input input-macro"
+            type="number"
+            placeholder="—"
+            value={draft.weightLow ?? ''}
+            onChange={e => handleNullable('weightLow', e.target.value)}
+          />
+        </label>
+        <label className="goal-input-label">
+          <span>Target High (lbs)</span>
+          <input
+            className="input input-macro"
+            type="number"
+            placeholder="—"
+            value={draft.weightHigh ?? ''}
+            onChange={e => handleNullable('weightHigh', e.target.value)}
+          />
+        </label>
+      </div>
+
       <div className="form-actions">
         <button className="btn-primary" onClick={save}>Save Goals</button>
         <button className="btn-ghost" onClick={onClose}>Cancel</button>
