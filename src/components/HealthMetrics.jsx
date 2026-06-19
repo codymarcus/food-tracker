@@ -21,14 +21,13 @@ export default function HealthMetrics({ metrics, onChange }) {
     if (!isNaN(val)) onChange({ steps: val })
   }
 
-  const workoutType = metrics.workout?.completed ? metrics.workout.type ?? null : null
+  const selectedTypes = metrics.workout?.types ?? []
 
-  function selectWorkout(type) {
-    if (workoutType === type) {
-      onChange({ workout: { completed: false, type: null } })
-    } else {
-      onChange({ workout: { completed: true, type } })
-    }
+  function toggleWorkoutType(type) {
+    const next = selectedTypes.includes(type)
+      ? selectedTypes.filter(t => t !== type)
+      : [...selectedTypes, type]
+    onChange({ workout: { completed: next.length > 0, types: next } })
   }
 
   return (
@@ -72,8 +71,8 @@ export default function HealthMetrics({ metrics, onChange }) {
           {WORKOUT_TYPES.map(({ key, label }) => (
             <button
               key={key}
-              className={`workout-toggle ${workoutType === key ? 'active' : ''}`}
-              onClick={() => selectWorkout(key)}
+              className={`workout-toggle ${selectedTypes.includes(key) ? 'active' : ''}`}
+              onClick={() => toggleWorkoutType(key)}
             >
               {label}
             </button>

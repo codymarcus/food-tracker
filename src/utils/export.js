@@ -1,4 +1,4 @@
-import { WORKOUT_TYPES } from './workouts.js'
+import { WORKOUT_TYPES, workoutTypesOf } from './workouts.js'
 
 const WORKOUT_LABELS = Object.fromEntries(WORKOUT_TYPES.map(w => [w.key, w.label]))
 
@@ -29,7 +29,7 @@ export function exportCSV(log, health) {
     )
     const h = health[date] || {}
     const workout = h.workout != null ? (h.workout.completed ? 'yes' : 'no') : ''
-    const workoutType = h.workout?.completed ? (WORKOUT_LABELS[h.workout.type] ?? '') : ''
+    const workoutType = workoutTypesOf(h.workout).map(t => WORKOUT_LABELS[t] ?? t).join('; ')
     return [
       date,
       entries.length ? Math.round(t.calories)             : '',
