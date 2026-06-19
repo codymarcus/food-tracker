@@ -24,7 +24,7 @@ function fmtLabel(v, unit) {
   return Math.round(v).toLocaleString()
 }
 
-export default function LineChart({ title, data, unit, color, refLine }) {
+export default function LineChart({ title, data, unit, color, refLine, markers }) {
   const nonNull = data.filter(d => d.value !== null)
   const refNonNull = refLine ? refLine.data.filter(d => d.value !== null) : []
   const n = data.length
@@ -118,6 +118,13 @@ export default function LineChart({ title, data, unit, color, refLine }) {
           const i = data.indexOf(d)
           return <circle key={d.date} cx={xOf(i)} cy={yOf(d.value)} r="3" fill={color} />
         })}
+
+        {/* Workout markers */}
+        {markers && markers.map((m, i) => m.emoji ? (
+          <text key={`mk-${i}`} x={xOf(i)} y={H - PAD.b + 9} textAnchor="middle" fontSize="11">
+            {m.emoji}
+          </text>
+        ) : null)}
       </svg>
     </div>
   )

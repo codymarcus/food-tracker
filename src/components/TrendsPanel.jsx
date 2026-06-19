@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { localDateStr, shiftDate } from '../utils/dates.js'
 import { goalsAt } from '../utils/goals.js'
+import { WORKOUT_TYPES, workoutEmoji } from '../utils/workouts.js'
 import LineChart from './LineChart.jsx'
 
 const STEPS_GOAL = 10000
@@ -37,6 +38,8 @@ export default function TrendsPanel({ log, health, goalHistory, onClose }) {
 
   const calorieGoalData = dates.map(date => ({ date, value: goalsAt(goalHistory, date).calories }))
   const stepsGoalData   = dates.map(date => ({ date, value: STEPS_GOAL }))
+  const workoutMarkers  = dates.map(date => ({ date, emoji: workoutEmoji(health[date]?.workout) }))
+  const hasWorkoutMarkers = workoutMarkers.some(m => m.emoji)
 
   // Exclude today — its totals are still in progress and would skew the average down
   const avgCalories = average(caloriesData.slice(0, -1).map(d => d.value))
@@ -82,7 +85,13 @@ export default function TrendsPanel({ log, health, goalHistory, onClose }) {
       <LineChart
         title="Calories" data={caloriesData} unit="cal" color="#22c55e"
         refLine={{ data: calorieGoalData, color: '#15803d', label: 'Goal' }}
+        markers={workoutMarkers}
       />
+      {hasWorkoutMarkers && (
+        <p className="chart-marker-legend">
+          {WORKOUT_TYPES.map(w => `${w.emoji} ${w.label}`).join('   ')}
+        </p>
+      )}
       <LineChart title="Weight" data={weightData} unit="lbs" color="#3b82f6" />
       <LineChart
         title="Steps" data={stepsData} unit="steps" color="#f97316"

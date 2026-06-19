@@ -548,6 +548,12 @@ body {
 /* Line chart */
 .line-chart { margin-bottom: 20px; }
 .line-chart:last-child { margin-bottom: 0; }
+.chart-marker-legend {
+  font-size: 10px;
+  color: #9ca3af;
+  text-align: center;
+  margin: -8px 0 20px;
+}
 .chart-title-row {
   display: flex;
   align-items: baseline;

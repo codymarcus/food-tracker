@@ -1,8 +1,15 @@
 export const WORKOUT_TYPES = [
-  { key: 'weightlifting',    label: 'Weightlifting' },
-  { key: 'beach_volleyball', label: 'Beach Volleyball' },
-  { key: 'hiking',           label: 'Hiking' },
+  { key: 'weightlifting',    label: 'Weightlifting',    emoji: '🏋️' },
+  { key: 'beach_volleyball', label: 'Beach Volleyball', emoji: '🏐' },
+  { key: 'hiking',           label: 'Hiking',           emoji: '🥾' },
 ]
+
+const EMOJI_BY_KEY = Object.fromEntries(WORKOUT_TYPES.map(w => [w.key, w.emoji]))
+
+// Compact emoji string for whatever workout types were logged that day, e.g. "🏋️🥾"
+export function workoutEmoji(workout) {
+  return workoutTypesOf(workout).map(t => EMOJI_BY_KEY[t] ?? '💪').join('')
+}
 
 // Normalizes any legacy workout shape (no type, singular `type`) into a `types` array
 export function workoutTypesOf(workout) {
