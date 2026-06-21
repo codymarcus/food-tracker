@@ -518,6 +518,39 @@ body {
 }
 .trends-range-toggle .toggle-btn { flex: 1; }
 
+/* Hover readout (drag-to-inspect) */
+.trend-hover-readout {
+  background: #f0fdf4;
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 18px;
+}
+.hover-date {
+  font-size: 12px;
+  font-weight: 700;
+  color: #16a34a;
+  white-space: nowrap;
+}
+.hover-metrics {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+.hover-hint {
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 0 auto;
+}
+
 /* Trend stat cards */
 .trend-stats {
   display: grid;

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { fmtShort } from '../utils/dates.js'
 import { goalsAt } from '../utils/goals.js'
 import { WORKOUT_TYPES, workoutEmoji } from '../utils/workouts.js'
 import { buildDateRange, dailyCalories, dailyProtein, average, movingAverage, rateOfLossPerWeek } from '../utils/trends.js'
@@ -6,6 +7,7 @@ import LineChart from './LineChart.jsx'
 
 export default function TrendsPanel({ log, health, goalHistory, onClose }) {
   const [range, setRange] = useState(7)
+  const [hoverIndex, setHoverIndex] = useState(null)
   const dates = buildDateRange(range)
   const lastIndex = dates.length - 1
   const todayGoals = goalsAt(goalHistory, dates[lastIndex])
@@ -41,8 +43,24 @@ export default function TrendsPanel({ log, health, goalHistory, onClose }) {
         <button className="btn-ghost small" onClick={onClose}>✕</button>
       </div>
       <div className="trends-range-toggle">
-        <button className={`toggle-btn ${range === 7  ? 'active' : ''}`} onClick={() => setRange(7)}>7 Days</button>
-        <button className={`toggle-btn ${range === 30 ? 'active' : ''}`} onClick={() => setRange(30)}>30 Days</button>
+        <button className={`toggle-btn ${range === 7  ? 'active' : ''}`} onClick={() => { setRange(7); setHoverIndex(null) }}>7 Days</button>
+        <button className={`toggle-btn ${range === 30 ? 'active' : ''}`} onClick={() => { setRange(30); setHoverIndex(null) }}>30 Days</button>
+      </div>
+
+      <div className="trend-hover-readout">
+        {hoverIndex != null ? (
+          <>
+            <span className="hover-date">{fmtShort(dates[hoverIndex])}</span>
+            <span className="hover-metrics">
+              <span>{caloriesData[hoverIndex].value ?? '—'} cal</span>
+              <span>{weightData[hoverIndex].value ?? '—'} lbs</span>
+              <span>{stepsData[hoverIndex].value?.toLocaleString() ?? '—'} steps</span>
+              <span>{proteinData[hoverIndex].value ?? '—'}g protein</span>
+            </span>
+          </>
+        ) : (
+          <span className="hover-hint">Drag any chart to inspect a day</span>
+        )}
       </div>
 
       <div className="trend-stats">
@@ -70,18 +88,21 @@ export default function TrendsPanel({ log, health, goalHistory, onClose }) {
         title="Weight" data={weightData} unit="lbs" color="#3b82f6"
         band={{ low: todayGoals.weightLow, high: todayGoals.weightHigh, color: '#3b82f6' }}
         secondaryLine={{ data: weightMAData, color: '#1d4ed8', label: '7-day avg' }}
+        hoverIndex={hoverIndex} onHover={setHoverIndex}
       />
 
       <LineChart
         title="Calories" data={caloriesData} unit="cal" color="#22c55e"
         refLine={{ data: calorieGoalData, color: '#15803d', label: 'Goal' }}
         partialFromIndex={lastIndex}
+        hoverIndex={hoverIndex} onHover={setHoverIndex}
       />
 
       <LineChart
         title="Steps" data={stepsData} unit="steps" color="#f97316"
         refLine={{ data: stepsGoalData, color: '#c2410c', label: 'Goal' }}
         markers={workoutMarkers} markerPlacement="value" compact
+        hoverIndex={hoverIndex} onHover={setHoverIndex}
       />
       {hasWorkoutMarkers && (
         <p className="chart-marker-legend">
@@ -94,6 +115,7 @@ export default function TrendsPanel({ log, health, goalHistory, onClose }) {
         refLine={{ data: proteinGoalData, color: '#1d4ed8', label: 'Floor' }}
         partialFromIndex={lastIndex}
         compact
+        hoverIndex={hoverIndex} onHover={setHoverIndex}
       />
     </div>
   )

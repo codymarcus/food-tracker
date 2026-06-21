@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { fmtShort } from '../utils/dates.js'
 
 const PAD = { l: 32, r: 8, t: 10, b: 22 }
@@ -25,10 +26,13 @@ function fmtLabel(v, unit) {
 export default function LineChart({
   title, data, unit, color, refLine, markers, band, secondaryLine,
   partialFromIndex, compact, markerPlacement = 'fixed',
+  hoverIndex, onHover,
 }) {
   const H = compact ? 76 : 130
   const CW = W - PAD.l - PAD.r
   const CH = H - PAD.t - PAD.b
+  const svgRef = useRef(null)
+  const draggingRef = useRef(false)
 
   const scaleSource = partialFromIndex != null ? data.slice(0, partialFromIndex) : data
   const nonNull = scaleSource.filter(d => d.value !== null)
@@ -57,6 +61,35 @@ export default function LineChart({
     ? segments(data.map((d, i) => (i >= partialFromIndex - 1 ? d : { ...d, value: null })))
     : []
 
+  function indexFromClientX(clientX) {
+    const svg = svgRef.current
+    if (!svg || n === 0) return null
+    const rect = svg.getBoundingClientRect()
+    if (!rect.width) return null
+    const relX = (clientX - rect.left) * (W / rect.width)
+    const idx = Math.round(((relX - PAD.l) / CW) * (n - 1))
+    return Math.min(n - 1, Math.max(0, idx))
+  }
+
+  function handlePointerDown(e) {
+    if (!onHover) return
+    draggingRef.current = true
+    svgRef.current?.setPointerCapture(e.pointerId)
+    const idx = indexFromClientX(e.clientX)
+    if (idx != null) onHover(idx)
+  }
+
+  function handlePointerMove(e) {
+    if (!draggingRef.current || !onHover) return
+    const idx = indexFromClientX(e.clientX)
+    if (idx != null) onHover(idx)
+  }
+
+  function handlePointerUp() {
+    draggingRef.current = false
+    if (onHover) onHover(null)
+  }
+
   return (
     <div className={`line-chart ${compact ? 'line-chart-compact' : ''}`}>
       <div className="chart-title-row">
@@ -76,7 +109,16 @@ export default function LineChart({
           </div>
         )}
       </div>
-      <svg className="chart-svg" viewBox={`0 0 ${W} ${H}`}>
+      <svg
+        ref={svgRef}
+        className="chart-svg"
+        viewBox={`0 0 ${W} ${H}`}
+        style={{ touchAction: onHover ? 'none' : undefined }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+      >
         {/* Target band */}
         {band && band.low != null && band.high != null && (
           <rect
@@ -192,6 +234,20 @@ export default function LineChart({
             </text>
           )
         })}
+
+        {/* Crosshair for the day being inspected, shared across all charts */}
+        {hoverIndex != null && hoverIndex < n && (
+          <g>
+            <line
+              x1={xOf(hoverIndex)} x2={xOf(hoverIndex)}
+              y1={PAD.t} y2={H - PAD.b}
+              stroke="#9ca3af" strokeWidth="1" strokeDasharray="3 3"
+            />
+            {data[hoverIndex].value != null && (
+              <circle cx={xOf(hoverIndex)} cy={yOf(data[hoverIndex].value)} r="4" fill={color} stroke="#fff" strokeWidth="1.5" />
+            )}
+          </g>
+        )}
       </svg>
     </div>
   )
