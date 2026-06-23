@@ -1,10 +1,13 @@
 export const WORKOUT_TYPES = [
   { key: 'weightlifting',    label: 'Weightlifting',    emoji: '🏋️' },
-  { key: 'beach_volleyball', label: 'Beach Volleyball', emoji: '🏐' },
-  { key: 'hiking',           label: 'Hiking',           emoji: '🥾' },
+  { key: 'beach_volleyball', label: 'Beach Volleyball', emoji: '🏐', tracksHours: true },
+  { key: 'hiking',           label: 'Hiking',           emoji: '🥾', tracksHours: true },
 ]
 
+export const CARBS_PER_HOUR = 30
+
 const EMOJI_BY_KEY = Object.fromEntries(WORKOUT_TYPES.map(w => [w.key, w.emoji]))
+const HOURS_TYPES = WORKOUT_TYPES.filter(w => w.tracksHours).map(w => w.key)
 
 // Compact emoji string for whatever workout types were logged that day, e.g. "🏋️🥾"
 export function workoutEmoji(workout) {
@@ -16,6 +19,13 @@ export function workoutTypesOf(workout) {
   if (!workout?.completed) return []
   if (Array.isArray(workout.types)) return workout.types
   return [workout.type ?? 'weightlifting']
+}
+
+// Extra carbs earned that day from hour-tracked activities (hiking, beach volleyball)
+export function workoutCarbBonus(workout) {
+  if (!workout?.completed) return 0
+  const hours = workout.hours || {}
+  return HOURS_TYPES.reduce((sum, type) => sum + (Number(hours[type]) || 0) * CARBS_PER_HOUR, 0)
 }
 
 export function migrateHealth(health) {

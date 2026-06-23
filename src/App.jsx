@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { localDateStr } from './utils/dates.js'
 import { migrateGoals, goalsAt } from './utils/goals.js'
-import { migrateHealth } from './utils/workouts.js'
+import { migrateHealth, workoutCarbBonus } from './utils/workouts.js'
 import MacroSummary from './components/MacroSummary'
 import FoodLog from './components/FoodLog'
 import AddFoodForm from './components/AddFoodForm'
@@ -37,6 +37,8 @@ export default function App() {
   useEffect(() => { localStorage.setItem(HEALTH_KEY,  JSON.stringify(health))      }, [health])
 
   const goals = goalsAt(goalHistory, date)
+  const carbBonus = workoutCarbBonus(health[date]?.workout)
+  const displayGoals = carbBonus > 0 ? { ...goals, carbs: goals.carbs + carbBonus } : goals
 
   function updateGoals(newGoals) {
     const today = localDateStr()
@@ -103,7 +105,7 @@ export default function App() {
       {panel === 'export'  && <ExportPanel log={log} health={health} goals={goalHistory} library={library} onClose={() => setPanel(null)} />}
 
       <DateNav date={date} onChange={setDate} />
-      <MacroSummary totals={totals} goals={goals} />
+      <MacroSummary totals={totals} goals={displayGoals} />
       <HealthMetrics metrics={health[date] || {}} onChange={updateHealthMetrics} />
       <AddFoodForm library={library} onAdd={addEntry} onSaveFood={saveFood} />
       <FoodLog entries={entries} onRemove={removeEntry} />

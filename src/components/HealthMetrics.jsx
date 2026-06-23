@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react'
-import { WORKOUT_TYPES } from '../utils/workouts.js'
+import { WORKOUT_TYPES, CARBS_PER_HOUR, workoutCarbBonus } from '../utils/workouts.js'
 
 export default function HealthMetrics({ metrics, onChange }) {
   const [weight, setWeight] = useState(metrics.weight ?? '')
   const [steps, setSteps]   = useState(metrics.steps  ?? '')
+  const [hoursDraft, setHoursDraft] = useState(metrics.workout?.hours ?? {})
 
   // Sync when date changes (metrics prop changes)
   useEffect(() => {
     setWeight(metrics.weight ?? '')
     setSteps(metrics.steps   ?? '')
+    setHoursDraft(metrics.workout?.hours ?? {})
   }, [metrics])
 
   function commitWeight() {
@@ -22,13 +24,27 @@ export default function HealthMetrics({ metrics, onChange }) {
   }
 
   const selectedTypes = metrics.workout?.types ?? []
+  const hours = metrics.workout?.hours ?? {}
 
   function toggleWorkoutType(type) {
     const next = selectedTypes.includes(type)
       ? selectedTypes.filter(t => t !== type)
       : [...selectedTypes, type]
-    onChange({ workout: { completed: next.length > 0, types: next } })
+    const nextHours = { ...hours }
+    if (!next.includes(type)) delete nextHours[type]
+    onChange({ workout: { completed: next.length > 0, types: next, hours: nextHours } })
   }
+
+  function commitHours(type) {
+    const raw = hoursDraft[type]
+    const val = raw === '' || raw === undefined ? null : Number(raw)
+    const nextHours = { ...hours }
+    if (val === null || isNaN(val) || val <= 0) delete nextHours[type]
+    else nextHours[type] = val
+    onChange({ workout: { completed: selectedTypes.length > 0, types: selectedTypes, hours: nextHours } })
+  }
+
+  const carbBonus = workoutCarbBonus(metrics.workout)
 
   return (
     <div className="health-metrics">
@@ -78,6 +94,28 @@ export default function HealthMetrics({ metrics, onChange }) {
             </button>
           ))}
         </div>
+
+        {WORKOUT_TYPES.filter(w => w.tracksHours && selectedTypes.includes(w.key)).map(w => (
+          <label key={w.key} className="workout-hours-row">
+            <span>{w.label} — how many hours?</span>
+            <div className="health-input-wrap">
+              <input
+                className="health-input small"
+                type="text"
+                inputMode="decimal"
+                placeholder="0"
+                value={hoursDraft[w.key] ?? ''}
+                onChange={e => setHoursDraft(prev => ({ ...prev, [w.key]: e.target.value }))}
+                onBlur={() => commitHours(w.key)}
+              />
+              <span className="health-unit">hrs</span>
+            </div>
+          </label>
+        ))}
+
+        {carbBonus > 0 && (
+          <p className="workout-carb-bonus">+{carbBonus}g carbs added to today's goal ({CARBS_PER_HOUR}g/hr)</p>
+        )}
       </div>
     </div>
   )
