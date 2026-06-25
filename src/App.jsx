@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { localDateStr } from './utils/dates.js'
 import { migrateGoals, goalsAt } from './utils/goals.js'
-import { migrateHealth, workoutCarbBonus } from './utils/workouts.js'
+import { migrateHealth, workoutCarbBonus, workoutCalorieBonus } from './utils/workouts.js'
 import MacroSummary from './components/MacroSummary'
 import FoodLog from './components/FoodLog'
 import AddFoodForm from './components/AddFoodForm'
@@ -38,7 +38,10 @@ export default function App() {
 
   const goals = goalsAt(goalHistory, date)
   const carbBonus = workoutCarbBonus(health[date]?.workout)
-  const displayGoals = carbBonus > 0 ? { ...goals, carbs: goals.carbs + carbBonus } : goals
+  const calorieBonus = workoutCalorieBonus(health[date]?.workout)
+  const displayGoals = carbBonus > 0
+    ? { ...goals, carbs: goals.carbs + carbBonus, calories: goals.calories + calorieBonus }
+    : goals
 
   function updateGoals(newGoals) {
     const today = localDateStr()

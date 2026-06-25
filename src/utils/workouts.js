@@ -5,6 +5,7 @@ export const WORKOUT_TYPES = [
 ]
 
 export const CARBS_PER_HOUR = 30
+const CARB_CALORIES = 4 // kcal per gram of carbs
 
 const EMOJI_BY_KEY = Object.fromEntries(WORKOUT_TYPES.map(w => [w.key, w.emoji]))
 const HOURS_TYPES = WORKOUT_TYPES.filter(w => w.tracksHours).map(w => w.key)
@@ -26,6 +27,11 @@ export function workoutCarbBonus(workout) {
   if (!workout?.completed) return 0
   const hours = workout.hours || {}
   return HOURS_TYPES.reduce((sum, type) => sum + (Number(hours[type]) || 0) * CARBS_PER_HOUR, 0)
+}
+
+// Calories carried by the carb bonus, so the calorie goal moves with it
+export function workoutCalorieBonus(workout) {
+  return workoutCarbBonus(workout) * CARB_CALORIES
 }
 
 export function migrateHealth(health) {
