@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { WORKOUT_TYPES, CARBS_PER_HOUR, workoutCarbBonus, workoutCalorieBonus } from '../utils/workouts.js'
+import { WORKOUT_TYPES, workoutCarbBonus, workoutCalorieBonus } from '../utils/workouts.js'
 
 export default function HealthMetrics({ metrics, onChange }) {
   const [weight, setWeight] = useState(metrics.weight ?? '')
@@ -116,7 +116,7 @@ export default function HealthMetrics({ metrics, onChange }) {
 
         {carbBonus > 0 && (
           <p className="workout-carb-bonus">
-            +{carbBonus}g carbs (+{calorieBonus} cal) added to today's goal ({CARBS_PER_HOUR}g/hr)
+            +{carbBonus}g carbs (+{calorieBonus} cal) added to today's goal
           </p>
         )}
       </div>

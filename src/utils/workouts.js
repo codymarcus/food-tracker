@@ -1,10 +1,12 @@
 export const WORKOUT_TYPES = [
   { key: 'weightlifting',    label: 'Weightlifting',    emoji: '🏋️' },
+  { key: 'running',          label: 'Running',          emoji: '🏃', tracksHours: true },
   { key: 'beach_volleyball', label: 'Beach Volleyball', emoji: '🏐', tracksHours: true },
   { key: 'hiking',           label: 'Hiking',           emoji: '🥾', tracksHours: true },
 ]
 
 export const CARBS_PER_HOUR = 30
+export const WEIGHTLIFTING_CARB_BONUS = 50
 const CARB_CALORIES = 4 // kcal per gram of carbs
 
 const EMOJI_BY_KEY = Object.fromEntries(WORKOUT_TYPES.map(w => [w.key, w.emoji]))
@@ -22,11 +24,14 @@ export function workoutTypesOf(workout) {
   return [workout.type ?? 'weightlifting']
 }
 
-// Extra carbs earned that day from hour-tracked activities (hiking, beach volleyball)
+// Extra carbs earned that day from hour-tracked activities (running, hiking, beach volleyball)
+// plus a flat bonus on weightlifting days
 export function workoutCarbBonus(workout) {
   if (!workout?.completed) return 0
   const hours = workout.hours || {}
-  return HOURS_TYPES.reduce((sum, type) => sum + (Number(hours[type]) || 0) * CARBS_PER_HOUR, 0)
+  const hoursBonus = HOURS_TYPES.reduce((sum, type) => sum + (Number(hours[type]) || 0) * CARBS_PER_HOUR, 0)
+  const weightliftingBonus = workoutTypesOf(workout).includes('weightlifting') ? WEIGHTLIFTING_CARB_BONUS : 0
+  return hoursBonus + weightliftingBonus
 }
 
 // Calories carried by the carb bonus, so the calorie goal moves with it
