@@ -1,6 +1,6 @@
 export const WORKOUT_TYPES = [
   { key: 'weightlifting',    label: 'Weightlifting',    emoji: '🏋️' },
-  { key: 'running',          label: 'Running',          emoji: '🏃', tracksHours: true },
+  { key: 'running',          label: 'Running',          emoji: '🏃' },
   { key: 'beach_volleyball', label: 'Beach Volleyball', emoji: '🏐', tracksHours: true },
   { key: 'hiking',           label: 'Hiking',           emoji: '🥾', tracksHours: true },
 ]
@@ -24,7 +24,7 @@ export function workoutTypesOf(workout) {
   return [workout.type ?? 'weightlifting']
 }
 
-// Extra carbs earned that day from hour-tracked activities (running, hiking, beach volleyball)
+// Extra carbs earned that day from hour-tracked activities (hiking, beach volleyball)
 // plus a flat bonus on weightlifting days
 export function workoutCarbBonus(workout) {
   if (!workout?.completed) return 0
