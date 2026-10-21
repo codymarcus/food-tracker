@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useKeyboardInset } from '../hooks/useKeyboardInset.js'
 
 const EMPTY_NEW    = { name: '', type: 'weight', refGrams: '', unitLabel: '', calories: '', protein: '', carbs: '', fat: '' }
 const EMPTY_ONEOFF = { name: '', calories: '', protein: '', carbs: '', fat: '' }
@@ -30,6 +31,7 @@ export default function AddFoodForm({ library, onAdd, onSaveFood }) {
   const [newFood, setNewFood]   = useState(EMPTY_NEW)
   const [oneOff, setOneOff]     = useState(EMPTY_ONEOFF)
   const searchRef = useRef()
+  const keyboardInset = useKeyboardInset()
 
   useEffect(() => {
     if (open && mode === 'search') setTimeout(() => searchRef.current?.focus(), 80)
@@ -151,7 +153,10 @@ export default function AddFoodForm({ library, onAdd, onSaveFood }) {
   return (
     <>
       <div className="sheet-backdrop" onClick={reset} />
-      <div className="bottom-sheet">
+      <div
+        className="bottom-sheet"
+        style={{ bottom: keyboardInset, maxHeight: `calc(88vh - ${keyboardInset}px)` }}
+      >
         <div className="sheet-handle" />
 
         {/* SEARCH */}
